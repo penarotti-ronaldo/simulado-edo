@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado - ICO/PMPR</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: #1a3c6e;
+            border-bottom: 3px solid #1a3c6e;
+            padding-bottom: 10px;
+            font-size: 26px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin: 10px 0 20px 0;
+            font-size: 15px;
+        }
+
+        .subtitle strong {
+            color: #1a3c6e;
+        }
+
+        .legenda-temas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin: 15px 0 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .legenda-temas span {
+            font-size: 11px;
+            background: #1a3c6e;
+            color: #fff;
+            padding: 3px 12px;
+            border-radius: 20px;
+        }
+
+        .legenda-temas .prazo {
+            background: #dc3545;
+        }
+
+        .questao {
+            background: #f8faff;
+            border: 1px solid #dde4f0;
+            border-radius: 10px;
+            padding: 16px 18px 10px 18px;
+            margin: 14px 0;
+            transition: background 0.2s;
+        }
+
+        .questao.correta {
+            background: #e6f7e6;
+            border-color: #28a745;
+        }
+
+        .questao.errada {
+            background: #fde8e8;
+            border-color: #dc3545;
+        }
+
+        .questao .pergunta {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #1a2a4a;
+        }
+
+        .questao .tema {
+            display: inline-block;
+            font-size: 10px;
+            background: #1a3c6e;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 20px;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .questao .tipo {
+            display: inline-block;
+            font-size: 10px;
+            background: #6c757d;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-left: 5px;
+            font-weight: normal;
+        }
+
+        .alternativas {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .alternativa {
+            background: #fff;
+            border: 2px solid #d0d7e6;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+        }
+
+        .alternativa:hover:not(.bloqueado) {
+            background: #eaf0fa;
+            border-color: #1a3c6e;
+        }
+
+        .alternativa.correta {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .alternativa.errada {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .alternativa.bloqueado {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .alternativa .feedback {
+            display: none;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .alternativa.correta .feedback {
+            display: inline;
+            color: #28a745;
+        }
+
+        .alternativa.errada .feedback {
+            display: inline;
+            color: #dc3545;
+        }
+
+        .alternativa .label {
+            font-weight: bold;
+            color: #555;
+            margin-right: 6px;
+        }
+
+        .resultado {
+            background: #1a3c6e;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            font-size: 17px;
+        }
+
+        .resultado .acertos {
+            background: #28a745;
+            padding: 5px 16px;
+            border-radius: 30px;
+        }
+
+        .resultado .erros {
+            background: #dc3545;
+            padding: 5px 16px;
+            border-radius: 30px;
+        }
+
+        .resultado .total {
+            background: #6c757d;
+            padding: 5px 16px;
+            border-radius: 30px;
+        }
+
+        .btn-reiniciar {
+            background: #ffc107;
+            color: #1a3c6e;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .btn-reiniciar:hover {
+            background: #e0a800;
+            transform: scale(1.02);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .resultado {
+                flex-direction: column;
+                gap: 8px;
+                font-size: 15px;
+            }
+            .alternativa {
+                font-size: 13px;
+                padding: 7px 10px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .legenda-temas span {
+                font-size: 9px;
+                padding: 2px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>📋 SIMULADO - ICO/PMPR</h1>
+        <p class="subtitle"><strong>Instruções de Comunicação Oficial da Polícia Militar do Paraná</strong></p>
+        <p class="subtitle">40 questões sobre Finalidade, Tipos, Técnicas, Prazos, Numeração, Fecho, Assinatura, Arquivo, Eliminação e mais</p>
+
+        <div class="legenda-temas">
+            <span>📌 Finalidade e Tipos</span>
+            <span>📝 Técnica de Elaboração</span>
+            <span>⏰ Prazos e Tramitação</span>
+            <span>🔢 Numeração</span>
+            <span>✍️ Fecho e Assinatura</span>
+            <span>📂 Arquivo e Eliminação</span>
+            <span class="prazo">📅 Datas e Abreviaturas</span>
+            <span>🏛️ Despacho, Ofício, Parte</span>
+        </div>
+
+        <div id="questoes-container"></div>
+
+        <div class="resultado" id="resultado">
+            <span>✅ <span class="acertos" id="acertos">0</span> ACERTOS</span>
+            <span>❌ <span class="erros" id="erros">0</span> ERROS</span>
+            <span>📊 <span class="total" id="total">0</span> RESPONDIDAS</span>
+        </div>
+
+        <div class="text-center">
+            <button class="btn-reiniciar" onclick="reiniciar()">🔄 REINICIAR SIMULADO</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        //  40 QUESTÕES - ICO/PMPR (20 V/F + 20 Múltipla Escolha)
+        // ================================================================
+        var questoesData = [
+            // ========== V/F - 20 QUESTÕES ==========
+            {
+                id: 1,
+                tema: "Finalidade",
+                pergunta: "As ICO/PMPR têm caráter complementar às disposições do Manual de Comunicação Escrita Oficial e do Manual de Gestão de Documentos do Estado do Paraná.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 2,
+                tema: "Documentos Sigilosos",
+                pergunta: "Os documentos sigilosos têm suas regras de elaboração, arquivo e eliminação definidas nas ICO/PMPR, sem necessidade de normas específicas.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 3,
+                tema: "Tramitação",
+                pergunta: "A tramitação ordinária tem prazo máximo de até 8 (oito) dias úteis para estudo e decisão.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 4,
+                tema: "Tramitação",
+                pergunta: "Documentos com tramitação urgentíssima exigem providência imediata, sem prazo máximo definido.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 5,
+                tema: "Estrutura do Documento",
+                pergunta: "Todos os documentos da PMPR são compostos por três partes: cabeçalho, texto e fecho.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 6,
+                tema: "Numeração",
+                pergunta: "A numeração dos documentos é reiniciada anualmente, a partir de 1º de janeiro, e encerrada em 31 de dezembro.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 7,
+                tema: "Numeração",
+                pergunta: "A numeração dos documentos deve ser escrita com, no mínimo, 4 (quatro) algarismos, para padronização.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 8,
+                tema: "Fecho",
+                pergunta: "A expressão 'Respeitosamente' é usada no fecho de documentos destinados a autoridades superiores.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 9,
+                tema: "Assinatura",
+                pergunta: "Documentos assinados com a expressão 'No impedimento' obrigam tanto quanto se fossem subscritos pela própria autoridade.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 10,
+                tema: "Assinatura",
+                pergunta: "Documentos que envolvem decisão sobre questão criminal ou disciplinar podem ser assinados com a expressão 'No impedimento'.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 11,
+                tema: "Datas",
+                pergunta: "Em documentos internos, como despacho e memorando, a data pode ser redigida de forma abreviada, sem zeros à esquerda no dia.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 12,
+                tema: "Abreviaturas",
+                pergunta: "O mês de maio deve ser abreviado com as três primeiras letras, conforme regra geral.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 13,
+                tema: "Abreviaturas",
+                pergunta: "Os símbolos científicos são escritos sem ponto e no singular, exceto quando derivados de nomes de cientistas.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 14,
+                tema: "Despacho",
+                pergunta: "O despacho é a decisão proferida pela autoridade competente, podendo ser favorável ou desfavorável à pretensão solicitada.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 15,
+                tema: "Arquivos",
+                pergunta: "Os arquivos correntes são destinados a documentos que, mesmo após a tramitação, são frequentemente consultados.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 16,
+                tema: "Eliminação",
+                pergunta: "Documentos de valor histórico, como boletins internos, podem ser eliminados após 10 anos de arquivamento.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 17,
+                tema: "Eliminação",
+                pergunta: "A eliminação de documentos deve ser feita por fragmentação mecânica, conforme o Manual de Gestão de Documentos.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 18,
+                tema: "Despacho",
+                pergunta: "O despacho pode ser redigido no verso da última folha do documento, para dar andamento ao expediente.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 0,
+                isVF: true
+            },
+            {
+                id: 19,
+                tema: "Ofício",
+                pergunta: "No ofício, o vocativo 'Prezado(a) Senhor(a)' pode ser utilizado em qualquer tipo de correspondência oficial.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+            {
+                id: 20,
+                tema: "Parte",
+                pergunta: "Na elaboração de uma parte, se houver apenas um item, ele deve ser numerado com algarismo arábico.",
+                alternativas: ["Verdadeiro", "Falso"],
+                correta: 1,
+                isVF: true
+            },
+
+            // ========== MÚLTIPLA ESCOLHA - 20 QUESTÕES ==========
+            {
+                id: 21,
+                tema: "Finalidade",
+                pergunta: "De acordo com as ICO/PMPR, qual é o prazo estabelecido para que os Oficiais P/4 adotem as providências relativas à classificação, guarda e transferência de documentos?",
+                alternativas: [
+                    "60 dias.",
+                    "120 dias.",
+                    "180 dias.",
+                    "365 dias.",
+                    "Não há prazo."
+                ],
+                correta: 2
+            },
+            {
+                id: 22,
+                tema: "Tipos de Documentos",
+                pergunta: "Qual dos seguintes documentos NÃO consta na lista de tipos da ICO/PMPR?",
+                alternativas: [
+                    "Boletim.",
+                    "Cautela.",
+                    "Certidão.",
+                    "Circular.",
+                    "Decreto."
+                ],
+                correta: 4
+            },
+            {
+                id: 23,
+                tema: "Numeração",
+                pergunta: "Após a numeração do documento, o que deve constar para identificar a origem?",
+                alternativas: [
+                    "Apenas a data.",
+                    "A sigla da seção, diretoria, unidade ou gabinete, precedida de barra.",
+                    "O nome completo do redator.",
+                    "O local de arquivamento.",
+                    "A assinatura do Chefe da Seção."
+                ],
+                correta: 1
+            },
+            {
+                id: 24,
+                tema: "Fecho",
+                pergunta: "A expressão 'Atenciosamente' deve ser usada no fecho de documentos destinados a:",
+                alternativas: [
+                    "Autoridade superior.",
+                    "Autoridade de mesma hierarquia ou inferior.",
+                    "Qualquer autoridade, independentemente da hierarquia.",
+                    "Órgãos externos à PMPR.",
+                    "Documentos internos apenas."
+                ],
+                correta: 1
+            },
+            {
+                id: 25,
+                tema: "Assinatura",
+                pergunta: "Na ausência do Comandante, Chefe ou Diretor, um documento com tramitação urgente pode ser assinado:",
+                alternativas: [
+                    "Pelo subtenente mais antigo.",
+                    "Pelo substituto da autoridade, com a expressão 'No impedimento'.",
+                    "Por qualquer oficial presente.",
+                    "Pelo Chefe da Seção de Expediente.",
+                    "Não pode ser assinado, deve aguardar o retorno."
+                ],
+                correta: 1
+            },
+            {
+                id: 26,
+                tema: "Datas",
+                pergunta: "Como deve ser grafada a data em documentos de trâmite interno, como despacho e memorando?",
+                alternativas: [
+                    "1º de maio de 2006.",
+                    "01/05/2006.",
+                    "1º mai. 06.",
+                    "01 de maio de 06.",
+                    "1 maio 06."
+                ],
+                correta: 2
+            },
+            {
+                id: 27,
+                tema: "Abreviaturas",
+                pergunta: "Qual a forma correta de abreviar o posto de Capitão, conforme a ICO/PMPR?",
+                alternativas: [
+                    "CAP.",
+                    "Cap.",
+                    "cpt.",
+                    "CPT.",
+                    "cap."
+                ],
+                correta: 1
+            },
+            {
+                id: 28,
+                tema: "Tramitação",
+                pergunta: "Documentos oriundos do Poder Judiciário, como Mandado de Segurança e Habeas Corpus, devem ter qual tipo de tramitação?",
+                alternativas: [
+                    "Ordinária.",
+                    "Urgente.",
+                    "Urgentíssima.",
+                    "Preferencial.",
+                    "Comum."
+                ],
+                correta: 2
+            },
+            {
+                id: 29,
+                tema: "Despacho",
+                pergunta: "O que é o despacho, segundo a ICO/PMPR?",
+                alternativas: [
+                    "Um documento para transmitir ordens gerais.",
+                    "A decisão proferida pela autoridade competente sobre um caso submetido à sua apreciação.",
+                    "Um ato normativo exclusivo do Comandante-Geral.",
+                    "Um documento que registra a prática de ato ou fato.",
+                    "Uma comunicação entre autoridades de mesma hierarquia."
+                ],
+                correta: 1
+            },
+            {
+                id: 30,
+                tema: "Arquivos",
+                pergunta: "Os arquivos correntes destinam-se a documentos que:",
+                alternativas: [
+                    "Já foram eliminados.",
+                    "São estreitamente vinculados aos fins imediatos e frequentemente consultados.",
+                    "Têm valor histórico permanente.",
+                    "São exclusivamente de caráter sigiloso.",
+                    "Estão aguardando eliminação."
+                ],
+                correta: 1
+            },
+            {
+                id: 31,
+                tema: "Eliminação",
+                pergunta: "Documentos relativos ao histórico da organização, como boletins internos e assentamentos, devem ser:",
+                alternativas: [
+                    "Eliminados após 5 anos.",
+                    "Eliminados após 10 anos.",
+                    "Transferidos para o Departamento Estadual de Arquivo Público.",
+                    "Integrados ao arquivo setorial ou geral e NÃO eliminados.",
+                    "Arquivados em local sigiloso."
+                ],
+                correta: 3
+            },
+            {
+                id: 32,
+                tema: "Ofício",
+                pergunta: "No ofício, o campo destinado à margem lateral esquerda deve ter, no mínimo, qual largura, considerando a juntada em processo?",
+                alternativas: [
+                    "1,5 cm.",
+                    "2 cm.",
+                    "3 cm.",
+                    "4 cm.",
+                    "5 cm."
+                ],
+                correta: 2
+            },
+            {
+                id: 33,
+                tema: "Parte",
+                pergunta: "Qual das seguintes afirmações sobre a 'Parte' está correta?",
+                alternativas: [
+                    "A parte é utilizada exclusivamente para comunicação com autoridades externas.",
+                    "A parte deve conter comentários e apreciações pessoais do redator.",
+                    "A parte é um documento pelo qual um militar se comunica com outro de mesmo posto ou superior, em objeto de serviço.",
+                    "A parte não admite enumeração de itens.",
+                    "A parte é um ato normativo exclusivo do Comandante-Geral."
+                ],
+                correta: 2
+            },
+            {
+                id: 34,
+                tema: "Requerimento",
+                pergunta: "No requerimento, qual expressão deve constar no fecho, conforme a ICO/PMPR?",
+                alternativas: [
+                    "Atenciosamente.",
+                    "Respeitosamente.",
+                    "Nestes termos espera deferimento.",
+                    "Saudações.",
+                    "Cordialmente."
+                ],
+                correta: 2
+            },
+            {
+                id: 35,
+                tema: "Diretriz",
+                pergunta: "A Diretriz, segundo a ICO/PMPR, é um ato normativo:",
+                alternativas: [
+                    "De qualquer Comandante de OPM.",
+                    "Exclusivo do Comandante-Geral.",
+                    "Exclusivo do Chefe do Estado-Maior.",
+                    "De qualquer autoridade com poder de polícia.",
+                    "De uso restrito a documentos sigilosos."
+                ],
+                correta: 1
+            },
+            {
+                id: 36,
+                tema: "Timbre",
+                pergunta: "O timbre com Brasão de Armas e Insígnia da PMPR NÃO deve ser utilizado em qual tipo de documento?",
+                alternativas: [
+                    "Ofício.",
+                    "Boletim.",
+                    "Circular.",
+                    "Despacho.",
+                    "Memorando."
+                ],
+                correta: 0
+            },
+            {
+                id: 37,
+                tema: "Tramitação",
+                pergunta: "Qual é o prazo máximo para tramitação e estudo de documentos com tramitação urgente?",
+                alternativas: [
+                    "1 dia útil.",
+                    "2 dias úteis.",
+                    "3 dias úteis.",
+                    "5 dias úteis.",
+                    "8 dias úteis."
+                ],
+                correta: 1
+            },
+            {
+                id: 38,
+                tema: "Documentos Diversos",
+                pergunta: "A certidão e a declaração, conforme a ICO/PMPR, devem ser elaboradas com:",
+                alternativas: [
+                    "Apenas cabeçalho e fecho.",
+                    "Brasão de Armas e Insígnia da PMPR no timbre.",
+                    "Apenas o nome da OPM expedidora.",
+                    "Sem qualquer identificação da PMPR.",
+                    "Apenas a assinatura do redator."
+                ],
+                correta: 1
+            },
+            {
+                id: 39,
+                tema: "Numeração",
+                pergunta: "Quando necessário, a numeração dos documentos pode ser escrita com:",
+                alternativas: [
+                    "No máximo 3 algarismos.",
+                    "Mais de 3 algarismos.",
+                    "Apenas 2 algarismos.",
+                    "Letras romanas.",
+                    "Apenas zeros à esquerda."
+                ],
+                correta: 1
+            },
+            {
+                id: 40,
+                tema: "Tramitação na Secretaria",
+                pergunta: "Segundo a ICO/PMPR, os documentos permanecem na secretaria:",
+                alternativas: [
+                    "No mínimo 24 horas.",
+                    "Apenas o tempo necessário à sua tramitação.",
+                    "No máximo 2 dias úteis.",
+                    "Até a próxima reunião da chefia.",
+                    "Por tempo indeterminado."
+                ],
+                correta: 1
+            }
+        ];
+
+        // ================================================================
+        //  ESTADO DA APLICAÇÃO
+        // ================================================================
+        var estado = {
+            respondidas: 0,
+            acertos: 0,
+            erros: 0,
+            bloqueadas: {}
+        };
+
+        var letras = ["A", "B", "C", "D", "E"];
+
+        // ================================================================
+        //  RENDERIZAR QUESTÕES
+        // ================================================================
+        function renderizarQuestoes() {
+            var container = document.getElementById("questoes-container");
+            container.innerHTML = "";
+
+            for (var q = 0; q < questoesData.length; q++) {
+                var questao = questoesData[q];
+                
+                var divQuestao = document.createElement("div");
+                divQuestao.className = "questao";
+                divQuestao.id = "questao-" + questao.id;
+
+                var pergunta = document.createElement("div");
+                pergunta.className = "pergunta";
+                
+                var tipoTexto = questao.isVF ? "V/F" : "M.E.";
+                pergunta.innerHTML = questao.id + ". " + questao.pergunta + 
+                    ' <span class="tema">' + questao.tema + '</span>' +
+                    ' <span class="tipo">' + tipoTexto + '</span>';
+                divQuestao.appendChild(pergunta);
+
+                var divAlt = document.createElement("div");
+                divAlt.className = "alternativas";
+
+                for (var i = 0; i < questao.alternativas.length; i++) {
+                    var alt = document.createElement("div");
+                    alt.className = "alternativa";
+                    alt.dataset.indice = i;
+                    alt.dataset.questaoId = questao.id;
+                    alt.id = "alt-" + questao.id + "-" + i;
+
+                    var label = document.createElement("span");
+                    label.className = "label";
+                    
+                    if (questao.isVF) {
+                        label.textContent = i === 0 ? "V)" : "F)";
+                    } else {
+                        label.textContent = letras[i] + ")";
+                    }
+                    
+                    alt.appendChild(label);
+
+                    var txt = document.createTextNode(" " + questao.alternativas[i]);
+                    alt.appendChild(txt);
+
+                    var feedback = document.createElement("span");
+                    feedback.className = "feedback";
+                    feedback.textContent = " ✓";
+                    alt.appendChild(feedback);
+
+                    alt.addEventListener("click", function(e) {
+                        var target = e.currentTarget;
+                        var questaoId = parseInt(target.dataset.questaoId);
+                        var indice = parseInt(target.dataset.indice);
+                        responderQuestao(questaoId, indice);
+                    });
+
+                    divAlt.appendChild(alt);
+                }
+
+                divQuestao.appendChild(divAlt);
+                container.appendChild(divQuestao);
+            }
+
+            atualizarResultado();
+        }
+
+        // ================================================================
+        //  RESPONDER QUESTÃO
+        // ================================================================
+        function responderQuestao(questaoId, indiceSelecionado) {
+            if (estado.bloqueadas[questaoId]) {
+                return;
+            }
+
+            var questao = null;
+            for (var q = 0; q < questoesData.length; q++) {
+                if (questoesData[q].id === questaoId) {
+                    questao = questoesData[q];
+                    break;
+                }
+            }
+            
+            if (!questao) return;
+
+            var isCorreta = (indiceSelecionado === questao.correta);
+
+            estado.bloqueadas[questaoId] = true;
+            estado.respondidas++;
+
+            if (isCorreta) {
+                estado.acertos++;
+            } else {
+                estado.erros++;
+            }
+
+            var divQuestao = document.getElementById("questao-" + questaoId);
+            if (isCorreta) {
+                divQuestao.className = "questao correta";
+            } else {
+                divQuestao.className = "questao errada";
+            }
+
+            var alternativas = divQuestao.querySelectorAll(".alternativa");
+            for (var i = 0; i < alternativas.length; i++) {
+                alternativas[i].classList.add("bloqueado");
+                if (i === questao.correta) {
+                    alternativas[i].classList.add("correta");
+                } else if (i === indiceSelecionado && !isCorreta) {
+                    alternativas[i].classList.add("errada");
+                }
+                alternativas[i].classList.remove("selecionada");
+            }
+
+            atualizarResultado();
+        }
+
+        // ================================================================
+        //  ATUALIZAR RESULTADO
+        // ================================================================
+        function atualizarResultado() {
+            document.getElementById("acertos").textContent = estado.acertos;
+            document.getElementById("erros").textContent = estado.erros;
+            document.getElementById("total").textContent = estado.respondidas;
+        }
+
+        // ================================================================
+        //  REINICIAR
+        // ================================================================
+        function reiniciar() {
+            estado = {
+                respondidas: 0,
+                acertos: 0,
+                erros: 0,
+                bloqueadas: {}
+            };
+            renderizarQuestoes();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // ================================================================
+        //  INICIALIZAR
+        // ================================================================
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", renderizarQuestoes);
+        } else {
+            renderizarQuestoes();
+        }
+    </script>
+</body>
+</html>
